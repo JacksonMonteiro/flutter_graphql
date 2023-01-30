@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class HomeView extends StatefulWidget {
   final String title;
@@ -23,14 +22,12 @@ class _HomeViewState extends State<HomeView> {
         centerTitle: true,
       ),
       body: _loading
-          ? const CircularProgressIndicator()
+          ? const Center(child: CircularProgressIndicator())
           : characters.isEmpty
               ? Center(
                   child: ElevatedButton(
                     child: const Text("Fetch API Data"),
-                    onPressed: () {
-                      // fetchData();
-                    },
+                    onPressed: fetchData,
                   ),
                 )
               : Padding(
@@ -52,5 +49,40 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
     );
+  }
+
+  void fetchData() async {
+    setState(() {
+      _loading = true;
+    });
+
+    HttpLink link = HttpLink("https://rickandmortyapi.com/graphql");
+
+    GraphQLClient qlClient = GraphQLClient(
+      link: link,
+      cache: GraphQLCache(store: HiveStore()),
+    );
+
+    QueryResult queryResult = await qlClient.query(
+      QueryOptions(
+        document: gql(
+          """
+        query {
+	        characters {
+            results {
+			        name
+              image
+            }
+	        }
+        }
+      """,
+        ),
+      ),
+    );
+
+    setState(() {
+      characters = queryResult.data!['characters']['results'];
+      _loading =  false;
+    });
   }
 }

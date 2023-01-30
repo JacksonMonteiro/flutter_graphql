@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:graphql/app/views/home_view.dart';
+import 'package:graphql_example/app/views/home_view.dart';
 
 class AppWidget extends StatelessWidget {
   const AppWidget({super.key});
